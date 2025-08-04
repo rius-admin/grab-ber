@@ -1,4 +1,3 @@
-
 import urllib3
 import random
 import time
@@ -23,25 +22,6 @@ class colors:
     WHITE = '\033[97m'
     RESET = '\033[0m'
 
-# International domain extensions (updated for current year)
-INTERNATIONAL_TLDS = [
-    # Global
-    '.com', '.net', '.org', '.info', '.biz', '.xyz',
-    # Asia
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.my', '.gov.may" '.com.my', '.sg', 
-    '.com.sg', '.in', '.co.in', '.ph', '.com.ph', '.th', '.co.th', '.in', '.gov.in',
-    # Europe
-    '.uk', '.co.uk', '.de', '.fr', '.es', '.it', '.nl', '.eu',
-    # Americas
-    '.us', '.ca', '.mx', '.br', '.com.br', '.ar',
-    # Middle East
-    '.ae', '.sa', '.qa', '.eg',
-    # Africa
-    '.za', '.co.za', '.ng', '.ke',
-    # Government/Education
-    '.gov', '.edu', '.mil', '.ac', '.sch'
-]
-
 class WordPressScanner:
     def __init__(self):
         self.session = requests.Session()
@@ -51,10 +31,29 @@ class WordPressScanner:
         self.total_scanned = 0
         self.start_time = datetime.now()
         self.clear_terminal()
+        
+        # Get all registered TLDs from IANA
+        self.registered_tlds = self.get_all_tlds()
 
     def clear_terminal(self):
         """Clear terminal screen"""
         os.system('cls' if os.name == 'nt' else 'clear')
+
+    def get_all_tlds(self):
+        """Fetch all registered TLDs from IANA"""
+        try:
+            response = requests.get("https://data.iana.org/TLD/tlds-alpha-by-domain.txt", timeout=10)
+            if response.status_code == 200:
+                # Skip first line (version info) and filter out test/invalid TLDs
+                return ['.' + tld.lower() for tld in response.text.split('\n')[1:] 
+                        if tld and not tld.startswith(('XN--', 'TEST'))]
+        except:
+            pass
+        
+        # Fallback to common TLDs if IANA list fails
+        return ['.com', '.net', '.org', '.info', '.biz', '.xyz', '.gov', '.edu', 
+                '.mil', '.io', '.co', '.ai', '.id', '.my', '.sg', '.uk', '.de', 
+                '.fr', '.jp', '.cn', '.br', '.au', '.in', '.ru', '.ca', '.us']
 
     def show_logo(self):
         """Display program logo"""
@@ -68,7 +67,7 @@ class WordPressScanner:
      dP     88888888P              dP     dP  88     88   Y88888P' dP     dP 
                       oooooooooooo                                           
                                                                             
-{colors.YELLOW}     WordPress Domain Grabber {colors.WHITE}[{colors.GREEN}v4.0{colors.WHITE}]
+{colors.YELLOW}     WordPress Domain Grabber {colors.WHITE}[{colors.GREEN}v5.0{colors.WHITE}]
 {colors.CYAN}     Start Time: {colors.WHITE}{self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
 {colors.RESET}"""
         print(logo)
@@ -84,7 +83,7 @@ class WordPressScanner:
         return random.choice(agents)
 
     def generate_domain(self):
-        """Generate random domain with international TLDs"""
+        """Generate random domain with registered TLDs"""
         vowels = 'aeiou'
         consonants = 'bcdfghjklmnpqrstvwxyz'
         length = random.randint(6, 14)
@@ -101,7 +100,7 @@ class WordPressScanner:
         if random.random() > 0.7:
             name += str(random.randint(0, 9))
         
-        return name + random.choice(INTERNATIONAL_TLDS)
+        return name + random.choice(self.registered_tlds)
 
     def is_domain_active(self, domain):
         """Check if domain is active (DNS + HTTP)"""
@@ -267,3 +266,4 @@ if __name__ == "__main__":
         print(f"\n{colors.RED}[!] Scan stopped by user!{colors.RESET}")
     except Exception as e:
         print(f"\n{colors.RED}[!] Error: {str(e)}{colors.RESET}")
+        
