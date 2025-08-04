@@ -24,11 +24,11 @@ class colors:
 
 # Common domain extensions
 COMMON_TLDS = [
-    '.com', '.net', '.org', '.info', '.biz',
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id',
-    '.my', '.sg', '.in', '.ph', '.th',
-    '.uk', '.de', '.fr', '.es', '.it',
-    '.us', '.ca', '.au', '.jp', '.br'
+    '.com', '.net', '.org', '.info', '.biz', '.bet', '.cc', '.pro', '.live', '.top', '.game',
+    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.us', '.win', '.max', '.bos',
+    '.my', '.sg', '.in', '.ph', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
+    '.uk', '.de', '.fr', '.es', '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun',
+    '.us', '.ca', '.au', '.jp', '.br', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site',
 ]
 
 class WordPressScanner:
@@ -39,7 +39,7 @@ class WordPressScanner:
         self.timeout = 15  # Increased timeout for reliability
         self.total_scanned = 0
         self.start_time = datetime.now()
-        self.output_file = "wordpress_sites.txt"
+        self.output_file = "list.txt"  # Changed to list.txt
         self.clear_terminal()
         self.initialize_file()
         self.delay = 0.5  # Delay between requests in seconds
@@ -49,10 +49,12 @@ class WordPressScanner:
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def initialize_file(self):
-        """Initialize the output file"""
-        with open(self.output_file, 'w', encoding='utf-8') as f:
-            f.write("# Active WordPress Sites\n")
-            f.write(f"# Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        """Initialize the output file if it doesn't exist"""
+        if not os.path.exists(self.output_file):
+            with open(self.output_file, 'w', encoding='utf-8') as f:
+                f.write("# Active WordPress Sites List\n")
+                f.write(f"# Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            print(f"{colors.YELLOW}[+] Created {self.output_file} automatically{colors.RESET}")
 
     def show_logo(self):
         """Display program logo"""
@@ -176,6 +178,15 @@ class WordPressScanner:
         print(f"{colors.CYAN}[+] Scanning for active WordPress sites...{colors.RESET}")
         print(f"{colors.CYAN}[+] Controlled scanning speed (delay: {self.delay}s){colors.RESET}")
         
+        # Clear previous results but keep header
+        with open(self.output_file, 'r+', encoding='utf-8') as f:
+            lines = f.readlines()
+            f.seek(0)
+            for line in lines:
+                if line.startswith('#'):
+                    f.write(line)
+            f.truncate()
+        
         # Scan with controlled threading
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             executor.map(self.scan_domain, domains)
@@ -186,7 +197,7 @@ class WordPressScanner:
         print(f"Total domains scanned: {self.total_scanned}")
         print(f"Active WordPress sites found: {len(self.active_wp_sites)}")
         print(f"Scan duration: {elapsed}")
-        print(f"Results saved to: {os.path.abspath(self.output_file)}{colors.RESET}")
+        print(f"{colors.GREEN}Results saved to: {os.path.abspath(self.output_file)}{colors.RESET}")
 
     def run(self):
         """Main program flow"""
