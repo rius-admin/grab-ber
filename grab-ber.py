@@ -1,4 +1,3 @@
-
 import urllib3
 import random
 import time
@@ -26,42 +25,40 @@ class colors:
 # Common domain extensions
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz',
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.or.id', '.my.id',
+    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id',
     '.my', '.sg', '.in', '.ph', '.th',
     '.uk', '.de', '.fr', '.es', '.it',
-    '.us', '.ca', '.au', '.jp', '.br', '.gov', '.gov.in', '.gov.my', 
-    '.mil.id', '.mil', '.xyz', '.shop', '.co', '.il', '.co.il'
+    '.us', '.ca', '.au', '.jp', '.br'
 ]
 
 class WordPressScanner:
     def __init__(self):
         self.session = requests.Session()
         self.active_wp_sites = []
-        self.threads = 30
-        self.timeout = 10
+        self.threads = 15  # Reduced threads for controlled speed
+        self.timeout = 15  # Increased timeout for reliability
         self.total_scanned = 0
         self.start_time = datetime.now()
-        self.output_file = "filelist.txt"
+        self.output_file = "wordpress_sites.txt"
         self.clear_terminal()
         self.initialize_file()
+        self.delay = 0.5  # Delay between requests in seconds
 
     def clear_terminal(self):
         """Clear terminal screen"""
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def initialize_file(self):
-        """Initialize the output file if it doesn't exist"""
-        if not os.path.exists(self.output_file):
-            with open(self.output_file, 'w', encoding='utf-8') as f:
-                f.write("# WordPress Sites List\n")
-                f.write("# Generated automatically\n\n")
-            print(f"{colors.YELLOW}[!] File {self.output_file} telah dibuat otomatis{colors.RESET}")
+        """Initialize the output file"""
+        with open(self.output_file, 'w', encoding='utf-8') as f:
+            f.write("# Active WordPress Sites\n")
+            f.write(f"# Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
     def show_logo(self):
         """Display program logo"""
         logo = f"""
 {colors.CYAN}
-  WordPress Site Scanner
+  WordPress Domain Grabber
 {colors.YELLOW}  [ Active Sites Only ]
 {colors.CYAN}
   Start Time: {colors.WHITE}{self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
@@ -77,8 +74,29 @@ class WordPressScanner:
         ]
         return random.choice(agents)
 
+    def generate_domain(self, count):
+        """Generate natural-looking domains"""
+        prefixes = ['web', 'site', 'blog', 'online', 'shop', 'news', 'tech']
+        suffixes = ['hub', 'center', 'point', 'base', 'zone', 'corp']
+        
+        domains = []
+        for _ in range(count):
+            # Create natural sounding domains
+            if random.random() < 0.7:
+                name = random.choice(prefixes) + random.choice(suffixes)
+            else:
+                vowels = 'aeiou'
+                consonants = 'bcdfghjklmnpqrstvwxyz'
+                name = random.choice(consonants) + random.choice(vowels)
+                name += ''.join(random.choice(consonants + vowels) for _ in range(random.randint(3, 5)))
+            
+            domains.append(name + random.choice(COMMON_TLDS))
+        
+        return domains
+
     def is_domain_active(self, domain):
-        """Check if domain is active (DNS + HTTP)"""
+        """Check if domain is active with controlled speed"""
+        time.sleep(self.delay)  # Add delay between checks
         try:
             socket.gethostbyname(domain)
             self.session.headers.update({'User-Agent': self.get_random_user_agent()})
@@ -94,14 +112,8 @@ class WordPressScanner:
 
     def is_wordpress_site(self, domain):
         """Check if active site uses WordPress"""
-        endpoints = [
-            '/wp-login.php',
-            '/wp-admin/',
-            '/readme.html',
-            '/wp-includes/js/wp-embed.min.js'
-        ]
-        
         try:
+            # First quick check
             response = self.session.get(
                 f"http://{domain}",
                 timeout=self.timeout,
@@ -109,13 +121,15 @@ class WordPressScanner:
                 verify=False
             )
             
+            # Fast WordPress detection
             if 'wp-content' in response.text or 'wp-includes' in response.text:
                 return True
-                
             if '<meta name="generator" content="WordPress' in response.text:
                 return True
-                
-            for endpoint in endpoints:
+            
+            # Secondary checks if needed
+            wp_endpoints = ['/wp-login.php', '/wp-admin/', '/readme.html']
+            for endpoint in wp_endpoints:
                 try:
                     ep_response = self.session.head(
                         f"http://{domain}{endpoint}",
@@ -127,14 +141,12 @@ class WordPressScanner:
                         return True
                 except:
                     continue
-                    
         except:
             pass
-            
         return False
 
     def scan_domain(self, domain):
-        """Scan a single domain"""
+        """Scan a single domain with proper output"""
         self.total_scanned += 1
         domain = domain.strip()
         
@@ -147,73 +159,57 @@ class WordPressScanner:
                 return
                 
             if self.is_wordpress_site(domain):
-                print(f"{colors.GREEN}[WP FOUND] {domain.ljust(40)}{colors.RESET}")
+                print(f"{colors.GREEN}[WORDPRESS] {domain.ljust(40)}{colors.RESET}")
                 self.active_wp_sites.append(domain)
                 with open(self.output_file, 'a', encoding='utf-8') as f:
                     f.write(f"{domain}\n")
             else:
-                print(f"{colors.YELLOW}[ACTIVE] {domain.ljust(40)}{colors.RESET}")
+                print(f"{colors.YELLOW}[SKIPPED] {domain.ljust(40)}{colors.RESET}")
         except Exception as e:
             print(f"{colors.RED}[ERROR] {domain} - {str(e)}{colors.RESET}")
 
-    def run_scan(self):
+    def run_scan(self, count):
         """Main scanning function"""
-        try:
-            with open(self.output_file, 'r', encoding='utf-8') as f:
-                domains = [line.strip() for line in f.readlines() 
-                         if line.strip() and not line.startswith('#')]
-        except Exception as e:
-            print(f"{colors.RED}[!] Gagal membaca file: {str(e)}{colors.RESET}")
-            return
-            
-        if not domains:
-            print(f"{colors.YELLOW}[!] Tambahkan domain ke file {self.output_file}{colors.RESET}")
-            print(f"{colors.CYAN}Contoh format:{colors.RESET}")
-            print("example.com")
-            print("test.co.id")
-            print("demo.sch.id")
-            return
-            
-        print(f"{colors.CYAN}\n[+] Memulai scan untuk {len(domains)} domain...{colors.RESET}")
+        print(f"{colors.CYAN}\n[+] Generating {count} domains to scan...{colors.RESET}")
+        domains = self.generate_domain(count)
         
-        # Clear previous results (keep header)
-        with open(self.output_file, 'r+', encoding='utf-8') as f:
-            lines = f.readlines()
-            f.seek(0)
-            for line in lines:
-                if line.startswith('#'):
-                    f.write(line)
-            f.truncate()
+        print(f"{colors.CYAN}[+] Scanning for active WordPress sites...{colors.RESET}")
+        print(f"{colors.CYAN}[+] Controlled scanning speed (delay: {self.delay}s){colors.RESET}")
         
-        # Scan with threading
+        # Scan with controlled threading
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
             executor.map(self.scan_domain, domains)
         
         # Show summary
         elapsed = datetime.now() - self.start_time
-        print(f"\n{colors.CYAN}=== HASIL SCAN ===")
-        print(f"Total discan: {self.total_scanned}")
-        print(f"Website WordPress aktif ditemukan: {len(self.active_wp_sites)}")
-        print(f"Waktu eksekusi: {elapsed}{colors.RESET}")
-        print(f"{colors.CYAN}Hasil tersimpan di: {os.path.abspath(self.output_file)}{colors.RESET}")
+        print(f"\n{colors.CYAN}=== SCAN RESULTS ===")
+        print(f"Total domains scanned: {self.total_scanned}")
+        print(f"Active WordPress sites found: {len(self.active_wp_sites)}")
+        print(f"Scan duration: {elapsed}")
+        print(f"Results saved to: {os.path.abspath(self.output_file)}{colors.RESET}")
 
     def run(self):
         """Main program flow"""
         self.show_logo()
-        self.run_scan()
+        try:
+            count = int(input(f"{colors.CYAN}[+] Enter number of domains to scan: {colors.WHITE}"))
+            self.run_scan(count)
+        except ValueError:
+            print(f"{colors.RED}[!] Please enter a valid number{colors.RESET}")
 
 if __name__ == "__main__":
     try:
+        # Check dependencies
         try:
             import requests
         except ImportError:
-            print(f"{colors.RED}[!] Menginstall package yang diperlukan...{colors.RESET}")
+            print(f"{colors.RED}[!] Installing required packages...{colors.RESET}")
             os.system("pip install requests urllib3")
             import requests
             
         scanner = WordPressScanner()
         scanner.run()
     except KeyboardInterrupt:
-        print(f"\n{colors.RED}[!] Scan dihentikan!{colors.RESET}")
+        print(f"\n{colors.RED}[!] Scan stopped by user!{colors.RESET}")
     except Exception as e:
         print(f"\n{colors.RED}[!] Error: {str(e)}{colors.RESET}")
