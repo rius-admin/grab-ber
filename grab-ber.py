@@ -1,3 +1,4 @@
+
 import urllib3
 import random
 import time
@@ -22,13 +23,14 @@ class colors:
     WHITE = '\033[97m'
     RESET = '\033[0m'
 
-# Common domain extensions (only the most widely used)
+# Common domain extensions
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz',
     '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.or.id', '.my.id',
     '.my', '.sg', '.in', '.ph', '.th',
     '.uk', '.de', '.fr', '.es', '.it',
-    '.us', '.ca', '.au', '.jp', '.br', '.gov', '.gov.in', '.gov.my', '.mil.id', '.mil', '.xyz', '.shop', '.co', '.il', 'co.il', 
+    '.us', '.ca', '.au', '.jp', '.br', '.gov', '.gov.in', '.gov.my', 
+    '.mil.id', '.mil', '.xyz', '.shop', '.co', '.il', '.co.il'
 ]
 
 class WordPressScanner:
@@ -64,33 +66,6 @@ class WordPressScanner:
         ]
         return random.choice(agents)
 
-    def generate_natural_domain(self):
-        """Generate natural-looking domains with common TLDs"""
-        common_prefixes = [
-            'web', 'site', 'blog', 'online', 'shop', 'news', 'tech', 
-            'service', 'portal', 'network', 'home', 'office', 'service'
-        ]
-        
-        common_suffixes = [
-            'hub', 'center', 'point', 'base', 'zone', 'corp', 'group',
-            'global', 'digital', 'net', 'sys', 'host', 'cloud'
-        ]
-        
-        # 70% chance to use common word combinations
-        if random.random() < 0.7:
-            if random.random() < 0.5:
-                name = random.choice(common_prefixes) + random.choice(common_suffixes)
-            else:
-                name = random.choice(common_prefixes) + str(random.randint(10, 99))
-        else:
-            # 30% chance for more random names
-            vowels = 'aeiou'
-            consonants = 'bcdfghjklmnpqrstvwxyz'
-            name = ''.join(random.choice(consonants) + random.choice(vowels) 
-            name += ''.join(random.choice(consonants + vowels) for _ in range(random.randint(3, 5)))
-        
-        return name + random.choice(COMMON_TLDS)
-
     def is_domain_active(self, domain):
         """Check if domain is active (DNS + HTTP)"""
         try:
@@ -102,7 +77,8 @@ class WordPressScanner:
             response = self.session.head(
                 f"http://{domain}", 
                 timeout=self.timeout,
-                allow_redirects=True
+                allow_redirects=True,
+                verify=False
             )
             return response.status_code < 400
         except:
@@ -114,7 +90,8 @@ class WordPressScanner:
             '/wp-login.php',
             '/wp-admin/',
             '/readme.html',
-            '/wp-includes/js/wp-embed.min.js'
+            '/wp-includes/js/wp-embed.min.js',
+            '/wp-json/'
         ]
         
         try:
@@ -122,7 +99,8 @@ class WordPressScanner:
             response = self.session.get(
                 f"http://{domain}",
                 timeout=self.timeout,
-                allow_redirects=True
+                allow_redirects=True,
+                verify=False
             )
             
             # Quick checks first
@@ -139,14 +117,15 @@ class WordPressScanner:
                     ep_response = self.session.head(
                         f"http://{domain}{endpoint}",
                         timeout=self.timeout,
-                        allow_redirects=False
+                        allow_redirects=False,
+                        verify=False
                     )
                     if ep_response.status_code == 200:
                         return True
                 except:
                     continue
                     
-        except:
+        except Exception as e:
             pass
             
         return False
@@ -167,12 +146,12 @@ class WordPressScanner:
             if self.is_wordpress_site(domain):
                 print(f"{colors.GREEN}[WP FOUND] {domain.ljust(40)}{colors.RESET}")
                 self.active_wp_sites.append(domain)
-                with open(output_file, 'a') as f:
+                with open(output_file, 'a', encoding='utf-8') as f:
                     f.write(f"{domain}\n")
             else:
                 print(f"{colors.YELLOW}[ACTIVE] {domain.ljust(40)}{colors.RESET}")
         except Exception as e:
-            print(f"{colors.RED}[ERROR] {domain}{colors.RESET}")
+            print(f"{colors.RED}[ERROR] {domain} - {str(e)}{colors.RESET}")
 
     def run_scan(self):
         """Main scanning function"""
@@ -186,8 +165,12 @@ class WordPressScanner:
             return
             
         # Read domains from file
-        with open(output_file, 'r') as f:
-            domains = f.read().splitlines()
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                domains = [line.strip() for line in f.readlines() if line.strip()]
+        except Exception as e:
+            print(f"{colors.RED}[!] Gagal membaca file: {str(e)}{colors.RESET}")
+            return
             
         if not domains:
             print(f"{colors.RED}[!] File filelist.txt kosong!{colors.RESET}")
@@ -197,11 +180,17 @@ class WordPressScanner:
         print(f"{colors.CYAN}[+] Hasil akan disimpan ke filelist.txt{colors.RESET}")
         
         # Clear existing results
-        open(output_file, 'w').close()
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                pass
+        except Exception as e:
+            print(f"{colors.RED}[!] Gagal membersihkan file: {str(e)}{colors.RESET}")
+            return
         
         # Scan with threading
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
-            executor.map(lambda d: self.scan_domain(d, output_file), domains)
+            for domain in domains:
+                executor.submit(self.scan_domain, domain, output_file)
         
         # Show summary
         elapsed = datetime.now() - self.start_time
