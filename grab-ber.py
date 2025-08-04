@@ -37,15 +37,25 @@ class WordPressScanner:
     def __init__(self):
         self.session = requests.Session()
         self.active_wp_sites = []
-        self.threads = 30  # Reduced for stability
-        self.timeout = 10  # Shorter timeout
+        self.threads = 30
+        self.timeout = 10
         self.total_scanned = 0
         self.start_time = datetime.now()
+        self.output_file = "filelist.txt"
         self.clear_terminal()
+        self.initialize_file()
 
     def clear_terminal(self):
         """Clear terminal screen"""
         os.system('cls' if os.name == 'nt' else 'clear')
+
+    def initialize_file(self):
+        """Initialize the output file if it doesn't exist"""
+        if not os.path.exists(self.output_file):
+            with open(self.output_file, 'w', encoding='utf-8') as f:
+                f.write("# WordPress Sites List\n")
+                f.write("# Generated automatically\n\n")
+            print(f"{colors.YELLOW}[!] File {self.output_file} telah dibuat otomatis{colors.RESET}")
 
     def show_logo(self):
         """Display program logo"""
@@ -55,6 +65,7 @@ class WordPressScanner:
 {colors.YELLOW}  [ Active Sites Only ]
 {colors.CYAN}
   Start Time: {colors.WHITE}{self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
+  Output File: {colors.WHITE}{self.output_file}
 {colors.RESET}"""
         print(logo)
 
@@ -69,10 +80,7 @@ class WordPressScanner:
     def is_domain_active(self, domain):
         """Check if domain is active (DNS + HTTP)"""
         try:
-            # Check DNS resolution first
             socket.gethostbyname(domain)
-            
-            # Then check HTTP connection
             self.session.headers.update({'User-Agent': self.get_random_user_agent()})
             response = self.session.head(
                 f"http://{domain}", 
@@ -90,12 +98,10 @@ class WordPressScanner:
             '/wp-login.php',
             '/wp-admin/',
             '/readme.html',
-            '/wp-includes/js/wp-embed.min.js',
-            '/wp-json/'
+            '/wp-includes/js/wp-embed.min.js'
         ]
         
         try:
-            # First check homepage for WordPress signs
             response = self.session.get(
                 f"http://{domain}",
                 timeout=self.timeout,
@@ -103,15 +109,12 @@ class WordPressScanner:
                 verify=False
             )
             
-            # Quick checks first
             if 'wp-content' in response.text or 'wp-includes' in response.text:
                 return True
                 
-            # Check meta tag
             if '<meta name="generator" content="WordPress' in response.text:
                 return True
                 
-            # Check endpoints
             for endpoint in endpoints:
                 try:
                     ep_response = self.session.head(
@@ -125,12 +128,12 @@ class WordPressScanner:
                 except:
                     continue
                     
-        except Exception as e:
+        except:
             pass
             
         return False
 
-    def scan_domain(self, domain, output_file):
+    def scan_domain(self, domain):
         """Scan a single domain"""
         self.total_scanned += 1
         domain = domain.strip()
@@ -146,7 +149,7 @@ class WordPressScanner:
             if self.is_wordpress_site(domain):
                 print(f"{colors.GREEN}[WP FOUND] {domain.ljust(40)}{colors.RESET}")
                 self.active_wp_sites.append(domain)
-                with open(output_file, 'a', encoding='utf-8') as f:
+                with open(self.output_file, 'a', encoding='utf-8') as f:
                     f.write(f"{domain}\n")
             else:
                 print(f"{colors.YELLOW}[ACTIVE] {domain.ljust(40)}{colors.RESET}")
@@ -155,42 +158,36 @@ class WordPressScanner:
 
     def run_scan(self):
         """Main scanning function"""
-        output_file = "filelist.txt"
-        
-        # Check if file exists
-        if not os.path.exists(output_file):
-            print(f"{colors.RED}[!] File filelist.txt tidak ditemukan!{colors.RESET}")
-            print(f"{colors.CYAN}[+] Buat file terlebih dahulu dengan command:{colors.RESET}")
-            print(f"nano filelist.txt")
-            return
-            
-        # Read domains from file
         try:
-            with open(output_file, 'r', encoding='utf-8') as f:
-                domains = [line.strip() for line in f.readlines() if line.strip()]
+            with open(self.output_file, 'r', encoding='utf-8') as f:
+                domains = [line.strip() for line in f.readlines() 
+                         if line.strip() and not line.startswith('#')]
         except Exception as e:
             print(f"{colors.RED}[!] Gagal membaca file: {str(e)}{colors.RESET}")
             return
             
         if not domains:
-            print(f"{colors.RED}[!] File filelist.txt kosong!{colors.RESET}")
+            print(f"{colors.YELLOW}[!] Tambahkan domain ke file {self.output_file}{colors.RESET}")
+            print(f"{colors.CYAN}Contoh format:{colors.RESET}")
+            print("example.com")
+            print("test.co.id")
+            print("demo.sch.id")
             return
             
         print(f"{colors.CYAN}\n[+] Memulai scan untuk {len(domains)} domain...{colors.RESET}")
-        print(f"{colors.CYAN}[+] Hasil akan disimpan ke filelist.txt{colors.RESET}")
         
-        # Clear existing results
-        try:
-            with open(output_file, 'w', encoding='utf-8') as f:
-                pass
-        except Exception as e:
-            print(f"{colors.RED}[!] Gagal membersihkan file: {str(e)}{colors.RESET}")
-            return
+        # Clear previous results (keep header)
+        with open(self.output_file, 'r+', encoding='utf-8') as f:
+            lines = f.readlines()
+            f.seek(0)
+            for line in lines:
+                if line.startswith('#'):
+                    f.write(line)
+            f.truncate()
         
         # Scan with threading
         with ThreadPoolExecutor(max_workers=self.threads) as executor:
-            for domain in domains:
-                executor.submit(self.scan_domain, domain, output_file)
+            executor.map(self.scan_domain, domains)
         
         # Show summary
         elapsed = datetime.now() - self.start_time
@@ -198,6 +195,7 @@ class WordPressScanner:
         print(f"Total discan: {self.total_scanned}")
         print(f"Website WordPress aktif ditemukan: {len(self.active_wp_sites)}")
         print(f"Waktu eksekusi: {elapsed}{colors.RESET}")
+        print(f"{colors.CYAN}Hasil tersimpan di: {os.path.abspath(self.output_file)}{colors.RESET}")
 
     def run(self):
         """Main program flow"""
@@ -206,7 +204,6 @@ class WordPressScanner:
 
 if __name__ == "__main__":
     try:
-        # Check dependencies
         try:
             import requests
         except ImportError:
