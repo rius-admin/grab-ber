@@ -26,21 +26,21 @@ class colors:
 # Common domain extensions
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz', '.bet', '.cc', '.pro', '.live', '.top', '.game',
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.us', '.win', '.max', '.gg',
-    '.my', '.in', '.biz.id', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
-    '.uk', '.es', '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun',
-    '.us', '.ca', '.au', '.jp', '.br', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site',
+    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.win', '.max', '.gg',
+    '.my', '.in', '.biz.id', '.gov', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
+    '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun', '.sch.id', '.go.id',
+    '.jp', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site', '.id', '.website', '.com',
 ]
 
 # Common subdomains
 COMMON_SUBDOMAINS = [
-    'www', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
+    'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
     'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
     'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
     'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
     'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
     'new', 'test', 'tes', 'coba', 'ujicoba', 'cobauji', 'file', 'files', '1admin', 'page',
-    'i', 'host', 'you', 'beli', 'rumah', '88', '77', '777', '78', '86', 'slot',
+    'i', 'host', 'you', 'beli', 'rumah', '88', '77', '777', '78', '86', 'slot', 'bet',
     'buaya', 'ayam', 'jambu', 'magga', 'naga', 'gacor', 'jp', 'aggur', 'bos', 'thailand',
     'cambodia', 'japan', 'indo', 'indonesia', 'malaysia', 'vvip', 'vip', 'pro', 'rusia',
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
@@ -238,11 +238,11 @@ class WordPressScanner:
         
         # Show summary
         elapsed = datetime.now() - self.start_time
-        print(f"\n{colors.CYAN}=== SCAN RESULTS ===")
-        print(f"Total domains scanned: {self.total_scanned}")
+        print(f"\n{colors.CYAN}=== Cyber Sederhana Team ===")
+        print(f"Total domains _ {self.total_scanned}")
         print(f"Active WordPress sites found: {len(self.active_wp_sites)}")
-        print(f"Scan duration: {elapsed}")
-        print(f"{colors.GREEN}Results saved to: {os.path.abspath(self.output_file)}{colors.RESET}")
+        print(f"Scan durasi_ {elapsed}")
+        print(f"{colors.GREEN}list sudah tersimpan di file list.txt {os.path.abspath(self.output_file)}{colors.RESET}")
 
     def run(self):
         """Main program flow"""
