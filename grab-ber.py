@@ -1,3 +1,4 @@
+
 import urllib3
 import random
 import time
@@ -25,18 +26,27 @@ class colors:
 # Common domain extensions
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz', '.bet', '.cc', '.pro', '.live', '.top', '.game',
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.us', '.win', '.max', '.bos',
-    '.my', '.sg', '.in', '.ph', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
+    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.us', '.win', '.max', '.gg',
+    '.my', '.sg', '.in', '.biz.id', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
     '.uk', '.de', '.fr', '.es', '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun',
     '.us', '.ca', '.au', '.jp', '.br', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site',
+]
+
+# Common subdomains
+COMMON_SUBDOMAINS = [
+    'www', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
+    'm', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
+    'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
+    'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
+    'pages', 'abcdefghijklmnopqrstuvwxyz', 
 ]
 
 class WordPressScanner:
     def __init__(self):
         self.session = requests.Session()
         self.active_wp_sites = []
-        self.threads = 15  # Reduced threads for controlled speed
-        self.timeout = 15  # Increased timeout for reliability
+        self.threads = 14  # Reduced threads for controlled speed
+        self.timeout = 14  # Increased timeout for reliability
         self.total_scanned = 0
         self.start_time = datetime.now()
         self.output_file = "list.txt"  # Changed to list.txt
@@ -77,9 +87,9 @@ class WordPressScanner:
         return random.choice(agents)
 
     def generate_domain(self, count):
-        """Generate natural-looking domains"""
-        prefixes = ['web', 'site', 'blog', 'online', 'shop', 'news', 'tech']
-        suffixes = ['hub', 'center', 'point', 'base', 'zone', 'corp']
+        """Generate natural-looking domains and subdomains"""
+        prefixes = ['web', 'site', 'blog', 'online', 'shop', 'buaya', 'news', 'tech']
+        suffixes = ['hub', 'center', 'point', 'buaya', 'base', 'zone', 'corp']
         
         domains = []
         for _ in range(count):
@@ -92,7 +102,13 @@ class WordPressScanner:
                 name = random.choice(consonants) + random.choice(vowels)
                 name += ''.join(random.choice(consonants + vowels) for _ in range(random.randint(3, 5)))
             
-            domains.append(name + random.choice(COMMON_TLDS))
+            base_domain = name + random.choice(COMMON_TLDS)
+            domains.append(base_domain)
+            
+            # Generate subdomains for some domains
+            if random.random() < 0.3:  # 30% chance to generate subdomains
+                subdomain = random.choice(COMMON_SUBDOMAINS) + '.' + base_domain
+                domains.append(subdomain)
         
         return domains
 
