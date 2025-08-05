@@ -27,18 +27,25 @@ class colors:
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz', '.bet', '.cc', '.pro', '.live', '.top', '.game',
     '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.us', '.win', '.max', '.gg',
-    '.my', '.sg', '.in', '.biz.id', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
-    '.uk', '.de', '.fr', '.es', '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun',
+    '.my', '.in', '.biz.id', '.th', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
+    '.uk', '.es', '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun',
     '.us', '.ca', '.au', '.jp', '.br', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site',
 ]
 
 # Common subdomains
 COMMON_SUBDOMAINS = [
     'www', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
-    'm', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
+    'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
     'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
     'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
-    'pages', 'abcdefghijklmnopqrstuvwxyz', 
+    'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
+    'new', 'test', 'tes', 'coba', 'ujicoba', 'cobauji', 'file', 'files', '1admin', 'page',
+    'i', 'host', 'you', 'beli', 'rumah', '88', '77', '777', '78', '86', 'slot',
+    'buaya', 'ayam', 'jambu', 'magga', 'naga', 'gacor', 'jp', 'aggur', 'bos', 'thailand',
+    'cambodia', 'japan', 'indo', 'indonesia', 'malaysia', 'vvip', 'vip', 'pro', 'rusia',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
+    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6',
+    '7', '8', '9', '10',
 ]
 
 class WordPressScanner:
@@ -88,8 +95,30 @@ class WordPressScanner:
 
     def generate_domain(self, count):
         """Generate natural-looking domains and subdomains"""
-        prefixes = ['web', 'site', 'blog', 'online', 'shop', 'buaya', 'news', 'tech']
-        suffixes = ['hub', 'center', 'point', 'buaya', 'base', 'zone', 'corp']
+        prefixes = ['web', 'site', 'blog', 'online', 'shop', 'buaya', 'news', 'tech', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
+    'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
+    'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
+    'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
+    'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
+    'new', 'test', 'tes', 'coba', 'ujicoba', 'cobauji', 'file', 'files', '1admin', 'page',
+    'i', 'host', 'you', 'beli', 'rumah', '88', '77', '777', '78', '86', 'slot',
+    'buaya', 'ayam', 'jambu', 'magga', 'naga', 'gacor', 'jp', 'aggur', 'bos', 'thailand',
+    'cambodia', 'japan', 'indo', 'indonesia', 'malaysia', 'vvip', 'vip', 'pro', 'rusia',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
+    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6',
+    '7', '8', '9', '10',]
+        suffixes = ['hub', 'center', 'point', 'buaya', 'base', 'zone', 'corp', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
+    'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
+    'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
+    'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
+    'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
+    'new', 'test', 'tes', 'coba', 'ujicoba', 'cobauji', 'file', 'files', '1admin', 'page',
+    'i', 'host', 'you', 'beli', 'rumah', '88', '77', '777', '78', '86', 'slot',
+    'buaya', 'ayam', 'jambu', 'magga', 'naga', 'gacor', 'jp', 'aggur', 'bos', 'thailand',
+    'cambodia', 'japan', 'indo', 'indonesia', 'malaysia', 'vvip', 'vip', 'pro', 'rusia',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
+    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4', '5', '6',
+    '7', '8', '9', '10',]
         
         domains = []
         for _ in range(count):
