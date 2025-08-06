@@ -26,15 +26,16 @@ class colors:
 # Common domain extensions
 COMMON_TLDS = [
     '.com', '.net', '.org', '.info', '.biz', '.bet', '.cc', '.pro', '.live', '.top', '.game',
-    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', 'slot', '.win', '.max', '.gg',
+    '.id', '.co.id', '.ac.id', '.sch.id', '.go.id', '.vvip', '.win', '.max', '.gg',
     '.my', '.in', '.biz.id', '.gov', '.co.in', '.ac.in', '.edu', '.edu.my', '.edu.in', '.click',
-    '.it', '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun', '.sch.id', '.go.id',
+    '.shop', '.online', '.vip',  '.co.il', '.il', '.my.id', '.fun', '.sch.id', '.go.id',
     '.jp', '.or.id', '.mil.id', '.co', '.gov.in', '.gov.my', '.site', '.id', '.website', '.com',
 ]
 
 # Common subdomains
 COMMON_SUBDOMAINS = [
     'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
+    'ruang', 'kelas', 'wins', 'naga', 'pasti', 'auto', 'zonk', 'bumi', 'selalu',
     'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
     'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
     'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
@@ -97,6 +98,7 @@ class WordPressScanner:
         """Generate natural-looking domains and subdomains"""
         prefixes = ['web', 'site', 'blog', 'online', 'shop', 'buaya', 'news', 'tech', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
     'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
+    'ruang', 'kelas', 'wins', 'naga', 'pasti', 'auto', 'zonk', 'bumi', 'selalu',
     'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
     'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
     'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
@@ -110,6 +112,7 @@ class WordPressScanner:
         suffixes = ['hub', 'center', 'point', 'buaya', 'base', 'zone', 'corp', 'blog', 'shop', 'store', 'news', 'dev', 'test', 'staging', 'akun',
     'no', 'mobile', 'api', 'secure', 'mail', 'webmail', 'admin', 'dashboard', 
     'app', 'apps', 'support', 'help', 'forum', 'community', 'status', 'cdn',
+    'ruang', 'kelas', 'wins', 'naga', 'pasti', 'auto', 'zonk', 'bumi', 'selalu',
     'static', 'media', 'images', 'img', 'download', 'downloads', 'docs', 'wiki',
     'pages', 'abcdefghijklmnopqrstuvwxyz', 'auth', 'login', 'human', 'user', 'newsnew',
     'new', 'test', 'tes', 'coba', 'ujicoba', 'cobauji', 'file', 'files', '1admin', 'page',
